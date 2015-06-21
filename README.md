@@ -1,4 +1,4 @@
-These are my first steps in DSC. I am pretty sure that things can be done in a better way (and someone who knows what's he is doing will come up with very large list of issues to be fixed). But all are working on my machine(TM). If something wipes out your server, wreaks havoc or does something insanely wrong, I am sorry, but you've been warned. Please, drop me a line and I will try to fix the bug.
+These are my first steps in PowerShell Desired State Configuration. I am pretty sure that things can be done in a better way (and someone who knows what's he is doing will come up with very large list of issues to be fixed). But all are working on my machine(TM). If something wipes out your server, wreaks havoc or does something insanely wrong, I am sorry, but you've been warned. Please, drop me a line and I will try to fix the bug.
 
 There are no tests yet. See Examples for proper explanation of resources use.
 
