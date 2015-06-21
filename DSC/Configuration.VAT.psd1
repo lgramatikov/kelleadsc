@@ -287,7 +287,7 @@
                         Bindings = @(
                             @{
                                 Protocol = "HTTP"
-                                HostHeader = "onlinebanking-api-ab.virtual-affairs.nl"
+                                HostHeader = "api.example.com"
                                 IP = "*"
                                 Port = 80
                             }
