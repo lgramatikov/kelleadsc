@@ -13,16 +13,34 @@
     )
     
     Import-DscResource –ModuleName PSDesiredStateConfiguration
-    Import-DscResource -Module xPSDesiredStateConfiguration
+    Import-DscResource -ModuleName xPSDesiredStateConfiguration
     Import-DscResource -Module klDeploy
 
     node $AllNodes.Where{$_.Role -eq "ContentDelivery"}.NodeName
     {
+        # Remove old install package if any
+        File "delete_oldinstallzip"
+        {
+            Ensure = "Absent"
+            Type = "File"
+            Force = $true
+            DestinationPath = Join-Path -Path $Node.InstallationPath -ChildPath "$($InstallationPackage).zip"
+        }
+
+         File "delete_oldinstallfolder"
+         {
+            Ensure = "Absent"
+            Type = "Directory"
+            Force = $true
+            DestinationPath = Join-Path -Path $Node.InstallationPath -ChildPath $InstallationPackage
+        }
+
         # Download installation package
         xRemoteFile DownloadInstallPackage
         {
             Uri = "$($ConfigurationData.NonNodeData.DistributionServerRoot)/rel/$($InstallationPackage).zip"
             DestinationPath = $Node.InstallationPath
+            DependsOn = "[File]delete_oldinstallfolder"
         }
 
         # Unzip installation package
@@ -67,6 +85,15 @@
                 MatchSource = $true
                 DependsOn = "[Archive]UnzipInstallPackage"
             }
+
+            # Remove old dictionary.dat
+            File "dictdat_$($siteNameNoSpecialChars)"
+            {
+                Ensure = "Absent"
+                Type = "File"
+                DestinationPath = "$realSiteHomeFolder\temp\dictionary.dat"
+                DependsOn = "[File]install_$($siteNameNoSpecialChars)"
+            }
         
             # Adjust connection strings
             foreach ($db in $site.Databases)
@@ -101,26 +128,40 @@
                     Value = "$($Node.WebSiteRootPath)\$($site.Name)\Data\"
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
                 }
-
+                
                 #cookie domain
-            
+                if ($site.SessionCookieDomain -ne $null)
+                {
+                    klConfigFileKeyValue "ck_$($siteNameNoSpecialChars)_cookie"
+                    {
+                       Ensure = "Present"
+                           ConfigId = New-Guid
+                           FilePath = "$realSiteHomeFolder\Web.config"
+                           XPathForKey = "/configuration/system.web/authentication/forms"
+                           Attribute = "domain"
+                           Value = $site.SessionCookieDomain
+                   }
+                }
+                
                 klConfigFileKeyValue "ck_$($site.Name)_hostName"
                 {
                     Ensure = "Present"
                     ConfigId = New-Guid
-                    FilePath = "$realSiteHomeFolder\App_Config\Include\Z.BRight.SiteDefinition.config"
+                    FilePath = "$realSiteHomeFolder\App_Config\Include\Z.BankingRight.SiteDefinition.config"
                     XPathForKey = "/configuration/sitecore/sites/site/patch:attribute[@name='hostName']"
                     Namespace = "patch=http://www.sitecore.net/xmlconfig/"
+                    Attribute = ""
                     Value = $site.Name
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
                 }
-
+                
                 klConfigFileKeyValue "ck_$($siteNameNoSpecialChars)_jsver"
                 {
                     Ensure = "Present"
                     ConfigId = New-Guid
-                    FilePath = "$realSiteHomeFolder\App_Config\BRight.config"
-                    XPathForKey = "/BRight/Settings/add[@key='ClientFramework.JavaScriptFilesVersion']"
+                    FilePath = "$realSiteHomeFolder\App_Config\BankingRight.config"
+                    XPathForKey = "/BankingRight/Settings/add[@key='ClientFramework.JavaScriptFilesVersion']"
+                    Attribute = ""
                     Namespace = ""
                     Value = $PackageVersion
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
@@ -134,7 +175,7 @@
                 #Adjust IdentityModel.config MSL URLs
                 Script "IdentityModel_$($site.Name)"
                 {
-                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\IdentityModel.config).replace(`"http://1.1.1.1:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`").replace(`"XYZ`",`"$($ConfigurationData.NonNodeData.STSCertificateThumbprint)`")|Set-Content $realSiteHomeFolder\App_Config\IdentityModel.config -Force" 
+                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\IdentityModel.config).replace(`"http://1.2.3.4:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`").replace(`"c45783764c8f889c699c8515cb8a9a907569ca28`",`"$($ConfigurationData.NonNodeData.MatrixSTSCertificateThumbprint)`")|Set-Content $realSiteHomeFolder\App_Config\IdentityModel.config -Force" 
                     TestScript = "`$False"
                     GetScript = "@{}"
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
@@ -148,7 +189,7 @@
                 #Adjust IdentityModelServices.config
                 Script "IdentityModelServices_$($siteNameNoSpecialChars)"
                 {
-                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\IdentityModelServices.config).replace(`"http://2.2.2.2:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`").replace(`"https://172.20.25.73:40443`",`"$($ConfigurationData.NonNodeData.STSUrl)`").replace(`"YUV`",`"$($ConfigurationData.NonNodeData.EncryptionCertificateThumbprint)`")|Set-Content $realSiteHomeFolder\App_Config\IdentityModelServices.config -Force" 
+                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\IdentityModelServices.config).replace(`"http://1.2.3.4:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`").replace(`"https://172.20.25.73:40443`",`"$($ConfigurationData.NonNodeData.STSUrl)`").replace(`"604aa7329449bc8d3dc8f33edd9db897ba170340`",`"$($ConfigurationData.NonNodeData.MatrixEncryptionCertificateThumbprint)`")|Set-Content $realSiteHomeFolder\App_Config\IdentityModelServices.config -Force" 
                     TestScript = "`$False"
                     GetScript = "@{}"
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
@@ -162,7 +203,7 @@
                 #Adjust SystemServiceModelBindings.config
                 Script "SystemServiceModelBindings_$($siteNameNoSpecialChars)"
                 {
-                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\SystemServiceModelBindings.config).replace(`"https://172.20.25.73:40443`",`"$($ConfigurationData.NonNodeData.STSUrl)`")|Set-Content $realSiteHomeFolder\App_Config\SystemServiceModelBindings.config -Force" 
+                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\SystemServiceModelBindings.config).replace(`"https://1.2.3.4:40443`",`"$($ConfigurationData.NonNodeData.STSUrl)`")|Set-Content $realSiteHomeFolder\App_Config\SystemServiceModelBindings.config -Force" 
                     TestScript = "`$False"
                     GetScript = "@{}"
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
@@ -176,7 +217,7 @@
                 #Adjust SystemServiceModelClient.config
                 Script "SystemServiceModelClient_$($siteNameNoSpecialChars)"
                 {
-                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\SystemServiceModelClient.config).replace(`"http://3.3.3.3:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`")|Set-Content $realSiteHomeFolder\App_Config\SystemServiceModelClient.config -Force" 
+                    SetScript =  "(Get-Content $realSiteHomeFolder\App_Config\SystemServiceModelClient.config).replace(`"http://1.2.3.4:40500`",`"$($ConfigurationData.NonNodeData.MSLUrl)`")|Set-Content $realSiteHomeFolder\App_Config\SystemServiceModelClient.config -Force" 
                     TestScript = "`$False"
                     GetScript = "@{}"
                     DependsOn = "[File]install_$($siteNameNoSpecialChars)"
@@ -185,13 +226,30 @@
                 #certificate encodedValue
             }
             
+            if ($site.SitecoreType -eq "CDS")
+            {
+                klSCSwitchMasterToWeb "smtw_$($siteNameNoSpecialChars)"
+                {
+                    Ensure = "Present"
+                    SiteHomePath = $realSiteHomeFolder
+                    DependsOn = "[File]install_$($siteNameNoSpecialChars)"
+                }
+            }
+
             # Encrypt config files
+            #klEncryptedConfigurationKey "eck_$($siteNameNoSpecialChars)"
+            #{
+            #    Ensure = "Present"
+            #    ConfigId = New-Guid
+            #    SiteHomePath = $realSiteHomeFolder
+            #    ConfigurationKey = "connectionStrings"
+            #}
         }
     }
 
     # As there is no point to upload and approve Sitecore content on all nodes in CMS role, we'll target one specific node. Well, if it is broken, nothing good will happen.
     # But there is no way to check in Sitecore if something is there or not. Or I might be totally wrong. May be try Sitecore.Ship?
-    #node "4.5.6.7
+    #node "10.10.10.85"
     #{
     #    # Import SC content
     #    foreach ($package in @($ConfigurationData.NonNodeData.TDSMasterPackageName,$ConfigurationData.NonNodeData.TDSLabelsPackageName))
@@ -200,11 +258,11 @@
     #        {
     #            Ensure = "Present"
     #            FilePath =  Join-Path -Path (Join-Path -Path $Node.InstallationPath -ChildPath $InstallationPackage) -ChildPath $package
-    #            WebsiteName = "cms.example.com"
+    #            WebsiteName = "onlinebanking-cms-ab-nd.virtual-affairs.nl"
     #            Username = $ConfigurationData.NonNodeData.SitecoreUsernameForTDSUpload
     #            Password = $ConfigurationData.NonNodeData.SitecorePasswordForTDSUpload
     #            UseSSL = $false
-    #            DependsOn = "[klSCWebPackageDeploy]klwd_xxx" # No point of doing something with content if install failed. Or move this only to content approval and always prepare content for the new version
+    #            DependsOn = "[klSCWebPackageDeploy]klwd_onlinebanking-ab-nd.virtual-affairs.nl" # No point of doing something with content if install failed. Or move this only to content approval and always prepare content for the new version
     #        }
     #    }
     #   
@@ -212,7 +270,7 @@
     #    klSCPublishContent "PublishContent"
     #    {
     #        Ensure = "Present"
-    #        WebsiteName = "cms.example.com"
+    #        WebsiteName = "onlinebanking-cms-ab-nd.virtual-affairs.nl"
     #        Username = $ConfigurationData.NonNodeData.SitecoreUsernameForTDSUpload
     #        Password = $ConfigurationData.NonNodeData.SitecorePasswordForTDSUpload
     #        UseSSL = $false
@@ -225,4 +283,4 @@
     # Delete dictionary.dat
 }
 
-Assert_AppInstall -InstallationPackage "VACustomerPortal" -PackageVersion "0.6.2" -ConfigurationData Configuration.VAT.psd1 -OutputPath .\INSTALL_APP
+Assert_AppInstall -InstallationPackage "VACustomerPortal" -PackageVersion "$(New-Guid)" -ConfigurationData Configuration.VAT.psd1 -OutputPath .\INSTALL_APP

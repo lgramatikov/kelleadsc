@@ -27,18 +27,18 @@
 
     NonNodeData = 
     @{
-        DistributionServerRoot = "http://sof-int-distr:8664"
+        DistributionServerRoot = "http://1.2.3.4:8664"
         SitecoreDefaultSitePackageName = "SC-80Update1-Base.zip"
         SitecoreLicensePackageName = "license.zip"
         SitecoreLicenseFileName = "license.xml"
         MSLCertificatesPackageName = "MSLCertificates.zip"
         MSLCertificatesMSIName = "MSLCertificates.msi"
         MSLEncryptionCertificateThumbprint ="XYZ"
-        STSUrl = "https://8.8.8.8:90443"
-        MSLUrl = "http://10.10.10.10:90500"
+        STSUrl = "https://1.2.3.4:90443"
+        MSLUrl = "http://1.2.3.4:90500"
         VAWindowsEventLog = "VA_Log"
-        TDSMasterPackageName = "TheBanks.Tds.Aruba.Master.update"
-        TDSLabelsPackageName = "TheBanks.Tds.Aruba.Labels.update"
+        TDSMasterPackageName = "TDS.Master.update"
+        TDSLabelsPackageName = "TDS.Labels.update"
         SitecoreUsernameForTDSUpload = "admin"
         SitecorePasswordForTDSUpload = "b"
         SitecoreUsernameForContentPublish = "admin"
@@ -97,7 +97,7 @@
                                 Database = "VA_UserStorage"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/UserSession.UserSessionModel.csdl|res://*/UserSession.UserSessionModel.ssdl|res://*/UserSession.UserSessionModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "ParameterTablesDatabase"
@@ -105,7 +105,7 @@
                                 Database = "VA_Configuration"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/Parameter.ParameterTablesModel.csdl|res://*/Parameter.ParameterTablesModel.ssdl|res://*/Parameter.ParameterTablesModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "UserPreferencesDatabase"
@@ -113,7 +113,7 @@
                                 Database = "VA_UserStorage"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/UserPreferences.UserPreferencesModel.csdl|res://*/UserPreferences.UserPreferencesModel.ssdl|res://*/UserPreferences.UserPreferencesModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "LookupsDatabase"
@@ -121,7 +121,7 @@
                                 Database = "VA_Configuration"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/Lookups.csdl|res://*/Lookups.ssdl|res://*/Lookups.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "Log4netConnectionString"
@@ -136,7 +136,7 @@
                                 Database = "VA_Log"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/EntityModels.LogModel.csdl|res://*/EntityModels.LogModel.ssdl|res://*/EntityModels.LogModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "ErrorMappingContext"
@@ -144,7 +144,7 @@
                                 Database = "VA_ErrorMapping"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/ErrorMapping.ErrorMappingModel.csdl|res://*/ErrorMapping.ErrorMappingModel.ssdl|res://*/ErrorMapping.ErrorMappingModel.msl"
+                                Metadata = "metadata=res://*/"
                             }
                         )
                     },
@@ -199,7 +199,7 @@
                                 Database = "VA_UserStorage"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/UserSession.UserSessionModel.csdl|res://*/UserSession.UserSessionModel.ssdl|res://*/UserSession.UserSessionModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "ParameterTablesDatabase"
@@ -207,7 +207,7 @@
                                 Database = "VA_Configuration"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/Parameter.ParameterTablesModel.csdl|res://*/Parameter.ParameterTablesModel.ssdl|res://*/Parameter.ParameterTablesModel.msl"
+                                Metadata = "metadata=res://*/
                             },
                             @{
                                 Key = "UserPreferencesDatabase"
@@ -215,7 +215,7 @@
                                 Database = "VA_UserStorage"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/UserPreferences.UserPreferencesModel.csdl|res://*/UserPreferences.UserPreferencesModel.ssdl|res://*/UserPreferences.UserPreferencesModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "LookupsDatabase"
@@ -223,7 +223,7 @@
                                 Database = "VA_Configuration"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/Lookups.csdl|res://*/Lookups.ssdl|res://*/Lookups.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "Log4netConnectionString"
@@ -238,7 +238,7 @@
                                 Database = "VA_Log"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/EntityModels.LogModel.csdl|res://*/EntityModels.LogModel.ssdl|res://*/EntityModels.LogModel.msl"
+                                Metadata = "metadata=res://*/"
                             },
                             @{
                                 Key = "ErrorMappingContext"
@@ -246,7 +246,7 @@
                                 Database = "VA_ErrorMapping"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/ErrorMapping.ErrorMappingModel.csdl|res://*/ErrorMapping.ErrorMappingModel.ssdl|res://*/ErrorMapping.ErrorMappingModel.msl"
+                                Metadata = "metadata=res://*/"
                             }
                         )
                     },
@@ -272,7 +272,7 @@
                                 Database = "VA_Log"
                                 Username = ""
                                 Password = ""
-                                Metadata = "metadata=res://*/EntityModels.LogModel.csdl|res://*/EntityModels.LogModel.ssdl|res://*/EntityModels.LogModel.msl"
+                                Metadata = "metadata=res://*/"
                             }
                         )
                     },
