@@ -247,39 +247,6 @@
         }
     }
 
-    # As there is no point to upload and approve Sitecore content on all nodes in CMS role, we'll target one specific node. Well, if it is broken, nothing good will happen.
-    # But there is no way to check in Sitecore if something is there or not. Or I might be totally wrong. May be try Sitecore.Ship?
-    #node "10.10.10.85"
-    #{
-    #    # Import SC content
-    #    foreach ($package in @($ConfigurationData.NonNodeData.TDSMasterPackageName,$ConfigurationData.NonNodeData.TDSLabelsPackageName))
-    #    {
-    #        klUploadTDSPackage "UploadTDSPackage_$package"
-    #        {
-    #            Ensure = "Present"
-    #            FilePath =  Join-Path -Path (Join-Path -Path $Node.InstallationPath -ChildPath $InstallationPackage) -ChildPath $package
-    #            WebsiteName = "onlinebanking-cms-ab-nd.virtual-affairs.nl"
-    #            Username = $ConfigurationData.NonNodeData.SitecoreUsernameForTDSUpload
-    #            Password = $ConfigurationData.NonNodeData.SitecorePasswordForTDSUpload
-    #            UseSSL = $false
-    #            DependsOn = "[klSCWebPackageDeploy]klwd_onlinebanking-ab-nd.virtual-affairs.nl" # No point of doing something with content if install failed. Or move this only to content approval and always prepare content for the new version
-    #        }
-    #    }
-    #   
-    #    # Publish SC content
-    #    klSCPublishContent "PublishContent"
-    #    {
-    #        Ensure = "Present"
-    #        WebsiteName = "onlinebanking-cms-ab-nd.virtual-affairs.nl"
-    #        Username = $ConfigurationData.NonNodeData.SitecoreUsernameForTDSUpload
-    #        Password = $ConfigurationData.NonNodeData.SitecorePasswordForTDSUpload
-    #        UseSSL = $false
-    #        SourceDatabase = "master"
-    #        PublishingTargets = @()
-    #        DependsOn   = @("[klUploadTDSPackage]UploadTDSPackage_$($ConfigurationData.NonNodeData.TDSMasterPackageName)","[klUploadTDSPackage]UploadTDSPackage_$($ConfigurationData.NonNodeData.TDSLabelsPackageName)")
-    #    }
-    #}
-
     # Delete dictionary.dat
 }
 
